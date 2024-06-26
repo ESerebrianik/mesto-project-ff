@@ -1,14 +1,17 @@
-const cardTemplate = document.querySelector('#card-template').content;
-const cardsContainer = document.querySelector('.places__list');
+export {createCard, deleteCard, likeCard};
+import {cardTemplate} from '../index.js';
 
-function createCard(data, onDelete) {
+function createCard(data, onDelete, likeCard, openImage) {
     const cardElement = cardTemplate.querySelector('.card').cloneNode(true);
     const deleteButton = cardElement.querySelector('.card__delete-button');
     const cardImage = cardElement.querySelector('.card__image');
+    const likeButton = cardElement.querySelector('.card__like-button');
     cardImage.src = data.link;
     cardImage.alt = data.name;
     cardElement.querySelector('.card__title').textContent = data.name;
     deleteButton.addEventListener('click', () => onDelete(cardElement));
+    likeButton.addEventListener('click', () => likeCard(likeButton)); 
+    cardImage.addEventListener('click', () => openImage(data.link, data.name));
     return cardElement;
 }
 
@@ -16,7 +19,6 @@ function deleteCard(card) {
     card.remove();
 }
 
-initialCards.forEach(function(dataCard){
-   let card = createCard(dataCard, deleteCard);
-   cardsContainer.append(card); 
-});
+function likeCard(likeButton) {  
+    likeButton.classList.toggle('card__like-button_is-active'); 
+}
