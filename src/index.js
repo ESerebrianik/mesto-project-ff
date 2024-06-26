@@ -4,17 +4,17 @@ import {closeAnyPopup, closePopup, openPopup} from './components/modal.js';
 import './pages/index.css';
 
 export {cardTemplate};
+export {handleEscape};
 
 const cardTemplate = document.querySelector('#card-template').content;
 const cardsContainer = document.querySelector('.places__list');
 const profileEditButton = document.querySelector('.profile__edit-button');
 const popups = document.querySelectorAll('.popup');
-// const popupClose = document.querySelector('.popup__close');
 const popupInputName = document.querySelector('.popup__input_type_name');
 const popupInputDescription = document.querySelector('.popup__input_type_description');
 const profileTitle = document.querySelector('.profile__title');
 const profileDescription = document.querySelector('.profile__description');
-const formElement = document.querySelector('.popup__form');
+const formProfileElement = document.querySelector('.popup__form');
 const profileAddButton = document.querySelector('.profile__add-button');
 const popupTypeNewCard = document.querySelector('.popup_type_new-card');
 const popupTypeEdit = document.querySelector('.popup_type_edit');
@@ -25,7 +25,7 @@ const popupTypeImage = document.querySelector('.popup_type_image');
 const popupImage = document.querySelector('.popup__image');
 const popupCaption = document.querySelector('.popup__caption')
 
-function handleFormSubmit(evt) {
+function handleProfileFormSubmit(evt) {
     evt.preventDefault();
     profileTitle.textContent = popupInputName.value;
     profileDescription.textContent = popupInputDescription.value;
@@ -34,12 +34,11 @@ function handleFormSubmit(evt) {
 
 function addNewCard(evt) {
     evt.preventDefault();
-    console.log(linksrc);
     const data = {
         name: cardName.value,
         link: linksrc.value
     }
-    return createCard(data, deleteCard, likeCard, openImage);   
+    return createCard({data, deleteCard, likeCard, openImage});   
 }
 
 function openImage(cardLink, cardName) {
@@ -49,8 +48,14 @@ function openImage(cardLink, cardName) {
     openPopup(popupTypeImage);    
 }
 
-initialCards.forEach(function(dataCard){
-   let card = createCard(dataCard, deleteCard, likeCard, openImage);
+function handleEscape(evt) {
+    if (evt.key === 'Escape') {
+        closeAnyPopup();
+      }
+}
+
+initialCards.forEach(function(data){
+   const card = createCard({data, deleteCard, likeCard, openImage});
    cardsContainer.append(card); 
 });
 
@@ -60,13 +65,10 @@ profileEditButton.addEventListener('click', function (evt) {
     popupInputDescription.value = profileDescription.textContent;
   })
 
-document.addEventListener('keydown', function(evt) {
-    if (evt.code === "Escape") {
-        closeAnyPopup();          
-    }
-})
+document.addEventListener('keydown', handleEscape);
+document.removeEventListener('keydown', handleEscape);
 
-formElement.addEventListener('submit', handleFormSubmit);
+formProfileElement.addEventListener('submit', handleProfileFormSubmit);
 
 profileAddButton.addEventListener('click', function(evt) {
     openPopup(popupTypeNewCard);
