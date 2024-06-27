@@ -1,12 +1,8 @@
 import {initialCards} from './scripts/cards.js';
 import {createCard, deleteCard, likeCard} from './components/card.js';
-import {closeAnyPopup, closePopup, openPopup} from './components/modal.js';
+import {closePopup, openPopup} from './components/modal.js';
 import './pages/index.css';
 
-export {cardTemplate};
-export {handleEscape};
-
-const cardTemplate = document.querySelector('#card-template').content;
 const cardsContainer = document.querySelector('.places__list');
 const profileEditButton = document.querySelector('.profile__edit-button');
 const popups = document.querySelectorAll('.popup');
@@ -48,12 +44,6 @@ function openImage(cardLink, cardName) {
     openPopup(popupTypeImage);    
 }
 
-function handleEscape(evt) {
-    if (evt.key === 'Escape') {
-        closeAnyPopup();
-      }
-}
-
 initialCards.forEach(function(data){
    const card = createCard({data, deleteCard, likeCard, openImage});
    cardsContainer.append(card); 
@@ -64,9 +54,6 @@ profileEditButton.addEventListener('click', function (evt) {
     popupInputName.value = profileTitle.textContent;
     popupInputDescription.value = profileDescription.textContent;
   })
-
-document.addEventListener('keydown', handleEscape);
-document.removeEventListener('keydown', handleEscape);
 
 formProfileElement.addEventListener('submit', handleProfileFormSubmit);
 

@@ -1,4 +1,3 @@
-export {closeAnyPopup, closePopup, openPopup};
 import {handleEscape} from '../index.js';
 
 function closeAnyPopup() {
@@ -15,3 +14,11 @@ function openPopup(popup) {
     popup.classList.add('popup_is-opened'); 
     document.addEventListener('keydown', handleEscape); 
 }
+
+function handleEscape(evt) {
+    if (evt.key === 'Escape') {
+        closeAnyPopup();
+      }
+}
+
+export {closePopup, openPopup};
