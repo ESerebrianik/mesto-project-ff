@@ -1,6 +1,6 @@
 import {initialCards} from './scripts/cards.js';
 import {createCard, deleteCard, likeCard} from './components/card.js';
-import {closePopup, openPopup} from './components/modal.js';
+import {closePopup, openPopup, handleEscape} from './components/modal.js';
 import './pages/index.css';
 
 const cardsContainer = document.querySelector('.places__list');

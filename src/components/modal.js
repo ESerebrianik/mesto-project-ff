@@ -1,5 +1,3 @@
-import {handleEscape} from '../index.js';
-
 function closeAnyPopup() {
     const popup = document.querySelector('.popup_is-opened');
     closePopup(popup);
@@ -21,4 +19,4 @@ function handleEscape(evt) {
       }
 }
 
-export {closePopup, openPopup};
+export {closePopup, openPopup, handleEscape};
