@@ -8,16 +8,16 @@ const inputList = Array.from(popupElement.querySelectorAll('.popup__input'));
 // const popupError = popupElement.querySelector(`.${popupInput.id}-error`);
 
 // Функция, которая добавляет класс с ошибкой
-const showInputError = (popupElement, popupInput, errorMessage) => {
-  const errorElement = popupElement.querySelector(`.${popupInput.id}-error`);
+const showInputError = (formElement, popupInput, errorMessage) => {
+  const errorElement = formElement.querySelector(`.${popupInput.id}-error`);
   popupInput.classList.add('popup__input_type_error');
   errorElement.textContent = errorMessage;
   errorElement.classList.add('popup__error_visible');
 };
 
 // Функция, которая удаляет класс с ошибкой
-const hideInputError = (popupElement, popupInput) => {
-  const errorElement = popupElement.querySelector(`.${popupInput.id}-error`);
+const hideInputError = (formElement, popupInput) => {
+  const errorElement = formElement.querySelector(`.${popupInput.id}-error`);
   popupInput.classList.remove('popup__input_type_error');
   errorElement.classList.remove('popup__error_visible');
   // 1. Удалите активный класс ошибки c formError.
@@ -26,7 +26,7 @@ const hideInputError = (popupElement, popupInput) => {
 };
 
 // Функция, которая проверяет валидность поля
-const isValid = (popupElement, popupInput) => {
+const isValid = (formElement, popupInput) => {
   if (popupInput.validity.patternMismatch) {
     // встроенный метод setCustomValidity принимает на вход строку
     // и заменяет ею стандартное сообщение об ошибке
@@ -38,10 +38,10 @@ const isValid = (popupElement, popupInput) => {
 }
   if (!popupInput.validity.valid) {
     // Если поле не проходит валидацию, покажем ошибку
-    showInputError(popupElement, popupInput, popupInput.validationMessage);
+    showInputError(formElement, popupInput, popupInput.validationMessage);
   } else {
     // Если проходит, скроем
-    hideInputError(popupElement, popupInput);
+    hideInputError(formElement, popupInput);
   }
 };
 
@@ -61,9 +61,10 @@ const hasInvalidInput = (inputList) => {
   }
 }
 
-const setEventListeners = (popupElement) => {
-  const inputList = Array.from(popupElement.querySelectorAll('.popup__input'));
-  const buttonElement = popupElement.querySelector('.popup__button');
+const setEventListeners = (formElement, configValidation) => {
+  const inputList = Array.from(formElement.querySelectorAll(configValidation.inputSelector));
+  console.log(formElement);  
+  const buttonElement = formElement.querySelector(configValidation.submitButtonSelector);
   toggleButtonState(inputList, buttonElement);
   // Обойдём все элементы полученной коллекции
   inputList.forEach((popupInput) => {
@@ -71,20 +72,16 @@ const setEventListeners = (popupElement) => {
     popupInput.addEventListener('input', () => {
       // Внутри колбэка вызовем isValid,
       // передав ей форму и проверяемый элемент
-      isValid(popupElement, popupInput);
+      isValid(formElement, popupInput);
       toggleButtonState(inputList, buttonElement);
     });
   });
 }; 
 
 const enableValidation = (configValidation) => {
-  const popupList = Array.from(document.querySelectorAll('.popup'));
-  popupList.forEach((popupElement) => {
-    setEventListeners(popupElement);
-  });
-  const fieldsetList = Array.from(formElement.querySelectorAll(configValidation.formSelector));
-  fieldsetList.forEach((fieldSet) => {
-    setEventListeners(fieldSet);
+  const formList = Array.from(document.querySelectorAll(configValidation.formSelector));
+  formList.forEach((formElement) => {
+    setEventListeners(formElement, configValidation);
   });
 };
 

@@ -100,12 +100,13 @@ const config = {
 };
 
 const data = fetch('https://nomoreparties.co/v1/wff-cohort-18/users/me',
-  {headers: config.headers}
-  .then((data) => {
-    console.log(data);
-  }));
+  {headers: config.headers})
+  .then(res => res.json())
+  .then((result) => {
+    console.log(result);
+  }); 
   
- data();
+ 
 
 
 
