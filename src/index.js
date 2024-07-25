@@ -2,6 +2,7 @@ import {initialCards} from './scripts/cards.js';
 import {createCard, deleteCard, likeCard} from './components/card.js';
 import {closePopup, openPopup, handleEscape} from './components/modal.js';
 import './pages/index.css';
+import {enableValidation, clearValidation } from './components/validation.js';
 
 const cardsContainer = document.querySelector('.places__list');
 const profileEditButton = document.querySelector('.profile__edit-button');
@@ -19,7 +20,17 @@ const cardName = document.querySelector('.popup__input_type_card-name');
 const linksrc = document.querySelector('.popup__input_type_url');
 const popupTypeImage = document.querySelector('.popup_type_image');
 const popupImage = document.querySelector('.popup__image');
-const popupCaption = document.querySelector('.popup__caption')
+const popupCaption = document.querySelector('.popup__caption');
+const configValidation = {
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
+  inactiveButtonClass: 'popup__button_disabled',
+  inputErrorClass: 'popup__input_type_error',
+  errorClass: 'popup__error_visible'
+ }
+
+ let userID = 0;
 
 function handleProfileFormSubmit(evt) {
     evt.preventDefault();
@@ -75,5 +86,28 @@ formNewCard.addEventListener('submit', function(evt) {
     formNewCard.reset();
     closePopup(popupTypeNewCard);
 });
+
+
+
+enableValidation(configValidation); 
+
+const config = {
+  baseUrl: 'https://nomoreparties.co/v1/wff-cohort-18',
+  headers: {
+    authorization: '1b2f73d7-94a0-4ec1-9518-0b6c0b294ca7',
+    'Content-Type': 'application/json'
+  }
+};
+
+const data = fetch('https://nomoreparties.co/v1/wff-cohort-18/users/me',
+  {headers: config.headers}
+  .then((data) => {
+    console.log(data);
+  }));
+  
+ data();
+
+
+
 
 

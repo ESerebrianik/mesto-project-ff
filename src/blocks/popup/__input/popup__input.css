@@ -14,9 +14,28 @@
   margin-bottom: 0;
 }
 
+.popup__input:focus,
+.popup__input:focus-visible {
+  outline: none;
+}
+
 @media screen and (max-width: 568px) {
   .popup__title {
     font-size: 12px;
     line-height: 15px;
   }
+}
+
+.popup__input-error {
+ font-size: 12px;
+ line-height: 14.52px;
+ color: red;
+}
+
+.popup__input_type_error {
+  border-bottom-color: red;
+}
+
+.popup__error_visible{
+  visibility: true;
 }
