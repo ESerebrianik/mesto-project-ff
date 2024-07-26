@@ -1,12 +1,5 @@
 export { enableValidation, clearValidation };
 
-const popupElement = document.querySelector('.popup');
-const popupInput = popupElement.querySelector('.popup__input');
-const inputList = Array.from(popupElement.querySelectorAll('.popup__input'));
-
-
-// const popupError = popupElement.querySelector(`.${popupInput.id}-error`);
-
 // Функция, которая добавляет класс с ошибкой
 const showInputError = (formElement, popupInput, errorMessage) => {
   const errorElement = formElement.querySelector(`.${popupInput.id}-error`);

@@ -9,6 +9,7 @@ const profileEditButton = document.querySelector('.profile__edit-button');
 const popups = document.querySelectorAll('.popup');
 const popupInputName = document.querySelector('.popup__input_type_name');
 const popupInputDescription = document.querySelector('.popup__input_type_description');
+const profileImage = document.querySelector('.profile__image');
 const profileTitle = document.querySelector('.profile__title');
 const profileDescription = document.querySelector('.profile__description');
 const formProfileElement = document.querySelector('.popup__form');
@@ -30,7 +31,7 @@ const configValidation = {
   errorClass: 'popup__error_visible'
  }
 
- let userID = 0;
+let userID = 0;
 
 function handleProfileFormSubmit(evt) {
     evt.preventDefault();
@@ -45,7 +46,8 @@ function addNewCard(evt) {
         name: cardName.value,
         link: linksrc.value
     }
-    return createCard({data, deleteCard, likeCard, openImage});   
+    return postAddNewCard();
+    // return createCard({data, deleteCard, likeCard, openImage});   
 }
 
 function openImage(cardLink, cardName) {
@@ -54,11 +56,6 @@ function openImage(cardLink, cardName) {
     popupCaption.textContent = cardName;
     openPopup(popupTypeImage);    
 }
-
-initialCards.forEach(function(data){
-   const card = createCard({data, deleteCard, likeCard, openImage});
-   cardsContainer.append(card); 
-});
 
 profileEditButton.addEventListener('click', function (evt) {
     openPopup(popupTypeEdit);
@@ -82,7 +79,6 @@ popups.forEach(function(popup) {
 
 formNewCard.addEventListener('submit', function(evt) {
     const cardElement = addNewCard(evt);
-    cardsContainer.prepend(cardElement);
     formNewCard.reset();
     closePopup(popupTypeNewCard);
 });
@@ -106,6 +102,92 @@ const data = fetch('https://nomoreparties.co/v1/wff-cohort-18/users/me',
     console.log(result);
   }); 
   
+const getInitialCards = () => {
+  return fetch(`${config.baseUrl}/cards`, {
+    headers: config.headers
+  })
+    .then(res => {
+      if (res.ok) {
+        return res.json();
+      }
+      return Promise.reject(`Ошибка: ${res.status}`);
+    })
+    .then((result) => {
+      console.log(result);
+      result.forEach(function(data){
+        const card = createCard({data, deleteCard, likeCard, openImage});
+        cardsContainer.append(card); 
+     });
+      // обрабатываем результат
+    })
+    .catch((err) => {
+      console.log(err); // выводим ошибку в консоль
+    }); 
+} 
+
+const getUserInfo = () => {
+  return fetch(`${config.baseUrl}/users/me`, {
+    headers: config.headers
+  })
+  .then(res => {
+    if (res.ok) {
+      return res.json();
+    }
+    return Promise.reject(`Ошибка: ${res.status}`);
+  })
+  .then((result) => {
+    profileTitle.textContent = result.name;
+    profileDescription.textContent = result.about;
+    profileImage.style.backgroundImage = `url(${result.avatar})`;;// обрабатываем результат
+  })
+  .catch((err) => {
+    console.log(err); // выводим ошибку в консоль
+  }); 
+}
+
+Promise.all([getInitialCards(), getUserInfo()])
+  .then(([cards, userdata]) => {
+
+  })
+  .catch((err) => {
+    console.log(`Ошибка. Запрос не выполнен: ${err}`);
+  });
+
+  fetch('https://nomoreparties.co/v1/wff-cohort-18/users/me', {
+    method: 'PATCH',
+    headers: {
+      authorization: '1b2f73d7-94a0-4ec1-9518-0b6c0b294ca7',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      name: 'Marie Skłodowska Curie',
+      about: 'Physicist and Chemist'
+    })
+  }); 
+
+const postAddNewCard = () => {
+  return fetch(`${config.baseUrl}/cards`, {
+    method: 'POST',
+    headers: config.headers,
+    body: JSON.stringify({
+      name: cardName.value,
+      link: linksrc.value })
+  }) 
+  .then(res => {
+    if (res.ok) {
+      return res.json();
+    }
+    return Promise.reject(`Ошибка: ${res.status}`);
+  })
+  .then((data) => {
+    console.log(data);
+    const card = createCard({data, deleteCard, likeCard, openImage});
+    cardsContainer.prepend(card);   
+  });
+}
+    // postAddNewCard(dataCard);
+    // console.log(dataCard);
+
  
 
 
