@@ -1,3 +1,5 @@
+export {addLike, deleteLike, deleteCard}
+
 const config = {
     baseUrl: 'https://nomoreparties.co/v1/wff-cohort-18',
     headers: {
@@ -23,7 +25,7 @@ const config = {
 //       }); 
 //   } 
 
-  const addLike = (cardID, likeCounter) => {
+  const addLike = (cardID, likeCounter, likeButton) => {
     return fetch(`${config.baseUrl}/cards/likes/${cardID}`, {
       method: 'PUT',
       headers: config.headers,  
@@ -35,9 +37,40 @@ const config = {
       return Promise.reject(`Ошибка: ${res.status}`);
     })
     .then((data) => {
-      console.log(data);
       likeCounter.textContent = data.likes.length;
+      likeButton.classList.add('card__like-button_is-active'); 
     });
   }
 
-  export {addLike}
+  const deleteLike = (cardID, likeCounter, likeButton) => {
+    return fetch(`${config.baseUrl}/cards/likes/${cardID}`, {
+        method: 'DELETE',
+        headers: config.headers,  
+      })
+      .then(res => {
+        if (res.ok) {
+          return res.json();
+        }
+        return Promise.reject(`Ошибка: ${res.status}`);
+      })
+      .then((data) => {
+        likeCounter.textContent = data.likes.length;
+        likeButton.classList.remove('card__like-button_is-active'); 
+      });
+  }
+
+  const deleteCard = (cardID, cardElement) => {
+    return fetch(`${config.baseUrl}/cards/${cardID}`, {
+      method: 'DELETE',
+      headers: config.headers,  
+      })
+      .then(res => {
+        if (res.ok) {
+          return res.json();
+        }
+        return Promise.reject(`Ошибка: ${res.status}`);
+      })
+      .then((data) => {
+        cardElement.remove();
+      }); 
+  }

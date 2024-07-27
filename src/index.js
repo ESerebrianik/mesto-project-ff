@@ -1,8 +1,9 @@
 import {initialCards} from './scripts/cards.js';
-import {createCard, deleteCard, likeCard} from './components/card.js';
+import {createCard, deleteCard} from './components/card.js';
 import {closePopup, openPopup, handleEscape} from './components/modal.js';
 import './pages/index.css';
 import {enableValidation, clearValidation } from './components/validation.js';
+import {addLike, deleteLike} from './components/api.js';
 
 const cardsContainer = document.querySelector('.places__list');
 const profileEditButton = document.querySelector('.profile__edit-button');
@@ -32,11 +33,13 @@ const configValidation = {
  }
 
 let userID = 0;
+let cardID = 0;
 
 function handleProfileFormSubmit(evt) {
     evt.preventDefault();
     profileTitle.textContent = popupInputName.value;
     profileDescription.textContent = popupInputDescription.value;
+    editProfileInfo(config, popupInputName.value, popupInputDescription.value);
     closePopup(popupTypeEdit);
 }
 
@@ -59,6 +62,7 @@ function openImage(cardLink, cardName) {
 
 profileEditButton.addEventListener('click', function (evt) {
     openPopup(popupTypeEdit);
+    // editProfileInfo();
     popupInputName.value = profileTitle.textContent;
     popupInputDescription.value = profileDescription.textContent;
   })
@@ -115,11 +119,6 @@ const getInitialCards = () => {
     .then((result) => {
       console.log(result);
       return result;
-    //   result.forEach(function(data){
-    //     const card = createCard({data, deleteCard, likeCard, openImage, userID});
-    //     cardsContainer.append(card); 
-    //  });
-      // обрабатываем результат
     })
     .catch((err) => {
       console.log(err); // выводим ошибку в консоль
@@ -139,10 +138,6 @@ const getUserInfo = () => {
   .then((result) => {
     console.log(result);
     return result;
-    // profileTitle.textContent = result.name;
-    // profileDescription.textContent = result.about;
-    // profileImage.style.backgroundImage = `url(${result.avatar})`;
-    // userID = result._id;// обрабатываем результат
   })
   .catch((err) => {
     console.log(err); // выводим ошибку в консоль
@@ -155,8 +150,9 @@ Promise.all([getInitialCards(), getUserInfo()])
     profileDescription.textContent = userdata.about;
     profileImage.style.backgroundImage = `url(${userdata.avatar})`;
     userID = userdata._id;
+    
     cards.forEach(function(data){
-      const card = createCard({data, deleteCard, likeCard, openImage, userID});
+      const card = createCard({data, deleteCard, addLike, openImage, userID, deleteLike});
       cardsContainer.append(card); 
    });
   })
@@ -164,17 +160,9 @@ Promise.all([getInitialCards(), getUserInfo()])
     console.log(`Ошибка. Запрос не выполнен: ${err}`);
   });
 
-  fetch('https://nomoreparties.co/v1/wff-cohort-18/users/me', {
-    method: 'PATCH',
-    headers: {
-      authorization: '1b2f73d7-94a0-4ec1-9518-0b6c0b294ca7',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      name: 'Marie Skłodowska Curie',
-      about: 'Physicist and Chemist'
-    })
-  }); 
+
+
+
 
 const postAddNewCard = () => {
   return fetch(`${config.baseUrl}/cards`, {
@@ -192,16 +180,54 @@ const postAddNewCard = () => {
   })
   .then((data) => {
     console.log(data);
-    const card = createCard({data, deleteCard, likeCard, openImage, userID});
+    let cardID = data._id;
+    const card = createCard({data, deleteCard, addLike, openImage, userID, deleteLike});
     cardsContainer.prepend(card);   
   });
 }
 
+const editProfileInfo = (config, name, about) => {  
+  return fetch(`${config.baseUrl}/users/me`, {
+    method: 'PATCH',
+    headers: config.headers,
+    body: JSON.stringify({
+      name: name,
+      about: about})
+    })
+    .then(res => {
+      if (res.ok) {
+        return res.json();
+      }
+      return Promise.reject(`Ошибка: ${res.status}`);
+    })
+    .then((data) => {
+      console.log(data);
+      profileTitle.textContent = data.name;
+      profileDescription.textContent = data.about;
+    });
+  }
 
-
-const toggleLikeButton = () => {
-
-}
+const confirmLikeCard = (evt, cardId, likeCounter) => {
+  if (evt.target.classList.contains('card__like-button_is-active')) {
+    deleteLike(cardID, likeCounter, likeButton)
+      .then((data) => {
+        evt.target.classList.remove('card__like-button_is-active');
+        likeCounter.textContent = data.likes.length;
+      })
+      .catch((err) => {
+        console.log('ошибка удаления лайка:', err);
+      });
+  } else {
+    addLike(cardID, likeCounter, likeButton)
+      .then((data) => {
+        evt.target.classList.add('card__like-button_is-active');
+        counterLikes.textContent = data.likes.length;
+      })
+      .catch((err) => {
+        console.log('ошибка добавления лайка:', err);
+      });
+  }
+};
 
  
 
