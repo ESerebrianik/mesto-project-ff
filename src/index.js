@@ -114,10 +114,11 @@ const getInitialCards = () => {
     })
     .then((result) => {
       console.log(result);
-      result.forEach(function(data){
-        const card = createCard({data, deleteCard, likeCard, openImage});
-        cardsContainer.append(card); 
-     });
+      return result;
+    //   result.forEach(function(data){
+    //     const card = createCard({data, deleteCard, likeCard, openImage, userID});
+    //     cardsContainer.append(card); 
+    //  });
       // обрабатываем результат
     })
     .catch((err) => {
@@ -136,9 +137,12 @@ const getUserInfo = () => {
     return Promise.reject(`Ошибка: ${res.status}`);
   })
   .then((result) => {
-    profileTitle.textContent = result.name;
-    profileDescription.textContent = result.about;
-    profileImage.style.backgroundImage = `url(${result.avatar})`;;// обрабатываем результат
+    console.log(result);
+    return result;
+    // profileTitle.textContent = result.name;
+    // profileDescription.textContent = result.about;
+    // profileImage.style.backgroundImage = `url(${result.avatar})`;
+    // userID = result._id;// обрабатываем результат
   })
   .catch((err) => {
     console.log(err); // выводим ошибку в консоль
@@ -147,7 +151,14 @@ const getUserInfo = () => {
 
 Promise.all([getInitialCards(), getUserInfo()])
   .then(([cards, userdata]) => {
-
+    profileTitle.textContent = userdata.name;
+    profileDescription.textContent = userdata.about;
+    profileImage.style.backgroundImage = `url(${userdata.avatar})`;
+    userID = userdata._id;
+    cards.forEach(function(data){
+      const card = createCard({data, deleteCard, likeCard, openImage, userID});
+      cardsContainer.append(card); 
+   });
   })
   .catch((err) => {
     console.log(`Ошибка. Запрос не выполнен: ${err}`);
@@ -181,12 +192,16 @@ const postAddNewCard = () => {
   })
   .then((data) => {
     console.log(data);
-    const card = createCard({data, deleteCard, likeCard, openImage});
+    const card = createCard({data, deleteCard, likeCard, openImage, userID});
     cardsContainer.prepend(card);   
   });
 }
-    // postAddNewCard(dataCard);
-    // console.log(dataCard);
+
+
+
+const toggleLikeButton = () => {
+
+}
 
  
 

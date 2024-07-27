@@ -6,19 +6,38 @@ const config = {
     }
   }
   
-  export const getInitialCards = () => {
-    return fetch(`${config.baseUrl}/cards`, {
-      headers: config.headers
-    })
-      .then(res => {
-        if (res.ok) {
-          return res.json();
-        }
+//   export const getInitialCards = () => {
+//     return fetch(`${config.baseUrl}/cards`, {
+//       headers: config.headers
+//     })
+//       .then(res => {
+//         if (res.ok) {
+//           return res.json();
+//         }
   
-        // если ошибка, отклоняем промис
-        return Promise.reject(`Ошибка: ${res.status}`);
-      })
-      .catch((err) => {
-        console.log(err); // выводим ошибку в консоль
-      }); 
-  } 
+//         // если ошибка, отклоняем промис
+//         return Promise.reject(`Ошибка: ${res.status}`);
+//       })
+//       .catch((err) => {
+//         console.log(err); // выводим ошибку в консоль
+//       }); 
+//   } 
+
+  const addLike = (cardID, likeCounter) => {
+    return fetch(`${config.baseUrl}/cards/likes/${cardID}`, {
+      method: 'PUT',
+      headers: config.headers,  
+    })
+    .then(res => {
+      if (res.ok) {
+        return res.json();
+      }
+      return Promise.reject(`Ошибка: ${res.status}`);
+    })
+    .then((data) => {
+      console.log(data);
+      likeCounter.textContent = data.likes.length;
+    });
+  }
+
+  export {addLike}
