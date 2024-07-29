@@ -1,9 +1,8 @@
-import {initialCards} from './scripts/cards.js';
-import {createCard, deleteCard} from './components/card.js';
+import {createCard} from './components/card.js';
 import {closePopup, openPopup, handleEscape} from './components/modal.js';
 import './pages/index.css';
 import {enableValidation, clearValidation } from './components/validation.js';
-import {addLike, deleteLike, editAvatar} from './components/api.js';
+import {config, getInitialCards, getUserInfo, postAddNewCard, addLike, deleteLike, deleteCard, editProfileInfo, editAvatar} from './components/api.js';
 
 const cardsContainer = document.querySelector('.places__list');
 const profileEditButton = document.querySelector('.profile__edit-button');
@@ -37,14 +36,25 @@ const configValidation = {
  }
 
 let userID = 0;
-let cardID = 0;
+
+function changeButtonText(button, text) {
+  button.textContent = text;
+}
 
 function handleProfileFormSubmit(evt) {
     evt.preventDefault();
     changeButtonText(buttonSubmitEditAvatar, "Сохранение...");
     profileTitle.textContent = popupInputName.value;
     profileDescription.textContent = popupInputDescription.value;
-    editProfileInfo(config, popupInputName.value, popupInputDescription.value);
+    editProfileInfo(config, popupInputName.value, popupInputDescription.value)
+    .then((data) => {
+      console.log(data);
+      profileTitle.textContent = data.name;
+      profileDescription.textContent = data.about;
+    })
+    .catch((err) => {
+      console.log('ошибка редактирования профиля:', err);
+    });
     changeButtonText(buttonSubmitEditAvatar, "Сохраненить");
     closePopup(popupTypeEdit);
 }
@@ -55,7 +65,16 @@ function addNewCard(evt) {
         name: cardName.value,
         link: linksrc.value
     }
-    return postAddNewCard();
+    postAddNewCard(cardName, linksrc)
+    .then((data) => {
+      console.log(data);
+      let cardID = data._id;
+      const card = createCard({data, deleteCard, addLike, openImage, userID, deleteLike, cardName, linksrc});
+      cardsContainer.prepend(card);   
+    })
+    .catch((err) => {
+      console.log('ошибка добавления карточки:', err);
+    })
 }
 
 function openImage(cardLink, cardName) {
@@ -80,7 +99,13 @@ profileAddButton.addEventListener('click', function(evt) {
 popupTypeEditAvatar.addEventListener('submit', function(evt) {
   evt.preventDefault();
   changeButtonText(buttonSubmitEditAvatar, "Сохранение...");
-  editAvatar(popupTypeEditAvatarInput.value, profileImage);
+  editAvatar(popupTypeEditAvatarInput.value, profileImage)
+    .then((result) => {
+      profileImage.src = result.avatar;
+    })
+    .catch((err) => {
+      console.log('ошибка редактирования фото профиля:', err);
+    });
   closePopup(popupTypeEditAvatar);
   changeButtonText(buttonSubmitEditAvatar, "Сохраненить");
 });
@@ -105,55 +130,7 @@ formNewCard.addEventListener('submit', function(evt) {
     changeButtonText(buttonSubmitEditAvatar, "Сохраненить");
 });
 
-
-
 enableValidation(configValidation); 
-
-const config = {
-  baseUrl: 'https://nomoreparties.co/v1/wff-cohort-18',
-  headers: {
-    authorization: '1b2f73d7-94a0-4ec1-9518-0b6c0b294ca7',
-    'Content-Type': 'application/json'
-  }
-};
-  
-const getInitialCards = () => {
-  return fetch(`${config.baseUrl}/cards`, {
-    headers: config.headers
-  })
-    .then(res => {
-      if (res.ok) {
-        return res.json();
-      }
-      return Promise.reject(`Ошибка: ${res.status}`);
-    })
-    .then((result) => {
-      console.log(result);
-      return result;
-    })
-    .catch((err) => {
-      console.log(err); // выводим ошибку в консоль
-    }); 
-} 
-
-const getUserInfo = () => {
-  return fetch(`${config.baseUrl}/users/me`, {
-    headers: config.headers
-  })
-  .then(res => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
-  })
-  .then((result) => {
-    console.log(result);
-    return result;
-  })
-  .catch((err) => {
-    console.log(err); // выводим ошибку в консоль
-  }); 
-}
 
 Promise.all([getInitialCards(), getUserInfo()])
   .then(([cards, userdata]) => {
@@ -171,74 +148,7 @@ Promise.all([getInitialCards(), getUserInfo()])
     console.log(`Ошибка. Запрос не выполнен: ${err}`);
   });
 
-const postAddNewCard = () => {
-  return fetch(`${config.baseUrl}/cards`, {
-    method: 'POST',
-    headers: config.headers,
-    body: JSON.stringify({
-      name: cardName.value,
-      link: linksrc.value })
-  }) 
-  .then(res => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
-  })
-  .then((data) => {
-    console.log(data);
-    let cardID = data._id;
-    const card = createCard({data, deleteCard, addLike, openImage, userID, deleteLike});
-    cardsContainer.prepend(card);   
-  });
-}
 
-const editProfileInfo = (config, name, about) => {  
-  return fetch(`${config.baseUrl}/users/me`, {
-    method: 'PATCH',
-    headers: config.headers,
-    body: JSON.stringify({
-      name: name,
-      about: about})
-    })
-    .then(res => {
-      if (res.ok) {
-        return res.json();
-      }
-      return Promise.reject(`Ошибка: ${res.status}`);
-    })
-    .then((data) => {
-      console.log(data);
-      profileTitle.textContent = data.name;
-      profileDescription.textContent = data.about;
-    });
-  }
-
-const confirmLikeCard = (evt, cardId, likeCounter) => {
-  if (evt.target.classList.contains('card__like-button_is-active')) {
-    deleteLike(cardID, likeCounter, likeButton)
-      .then((data) => {
-        evt.target.classList.remove('card__like-button_is-active');
-        likeCounter.textContent = data.likes.length;
-      })
-      .catch((err) => {
-        console.log('ошибка удаления лайка:', err);
-      });
-  } else {
-    addLike(cardID, likeCounter, likeButton)
-      .then((data) => {
-        evt.target.classList.add('card__like-button_is-active');
-        counterLikes.textContent = data.likes.length;
-      })
-      .catch((err) => {
-        console.log('ошибка добавления лайка:', err);
-      });
-  }
-};
-
-function changeButtonText(button, text) {
-  button.textContent = text;
-}
 
  
 

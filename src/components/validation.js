@@ -13,27 +13,19 @@ const hideInputError = (formElement, popupInput) => {
   const errorElement = formElement.querySelector(`.${popupInput.id}-error`);
   popupInput.classList.remove('popup__input_type_error');
   errorElement.classList.remove('popup__error_visible');
-  // 1. Удалите активный класс ошибки c formError.
   errorElement.textContent = '';
-  // 2. Очистите свойство textContent элемента formError.
 };
 
 // Функция, которая проверяет валидность поля
 const isValid = (formElement, popupInput) => {
   if (popupInput.validity.patternMismatch) {
-    // встроенный метод setCustomValidity принимает на вход строку
-    // и заменяет ею стандартное сообщение об ошибке
     popupInput.setCustomValidity(popupInput.dataset.errorMessage);
 } else {
-    // если передать пустую строку, то будут доступны
-    // стандартные браузерные сообщения
     popupInput.setCustomValidity("");
 }
   if (!popupInput.validity.valid) {
-    // Если поле не проходит валидацию, покажем ошибку
     showInputError(formElement, popupInput, popupInput.validationMessage);
   } else {
-    // Если проходит, скроем
     hideInputError(formElement, popupInput);
   }
 };
@@ -59,12 +51,8 @@ const setEventListeners = (formElement, configValidation) => {
   console.log(formElement);  
   const buttonElement = formElement.querySelector(configValidation.submitButtonSelector);
   toggleButtonState(inputList, buttonElement);
-  // Обойдём все элементы полученной коллекции
   inputList.forEach((popupInput) => {
-    // каждому полю добавим обработчик события input
     popupInput.addEventListener('input', () => {
-      // Внутри колбэка вызовем isValid,
-      // передав ей форму и проверяемый элемент
       isValid(formElement, popupInput);
       toggleButtonState(inputList, buttonElement);
     });
@@ -91,6 +79,5 @@ const clearValidation = () => {
     inputElement.setCustomValidity('');
     inputElement.classList.remove(configValidation.inputErrorClass);
   });
-
 }
 

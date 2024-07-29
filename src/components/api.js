@@ -1,4 +1,4 @@
-export {addLike, deleteLike, deleteCard, editAvatar}
+export {config, getInitialCards, getUserInfo, postAddNewCard, addLike, deleteLike, deleteCard, editProfileInfo, editAvatar}
 
 const config = {
     baseUrl: 'https://nomoreparties.co/v1/wff-cohort-18',
@@ -6,91 +6,81 @@ const config = {
       authorization: '1b2f73d7-94a0-4ec1-9518-0b6c0b294ca7',
       'Content-Type': 'application/json'
     }
+};
+
+const handleRes = (res) => {
+  if (res.ok) {
+    return res.json();
   }
+  return Promise.reject(`Ошибка: ${res.status}`);
+};
   
-//   export const getInitialCards = () => {
-//     return fetch(`${config.baseUrl}/cards`, {
-//       headers: config.headers
-//     })
-//       .then(res => {
-//         if (res.ok) {
-//           return res.json();
-//         }
-  
-//         // если ошибка, отклоняем промис
-//         return Promise.reject(`Ошибка: ${res.status}`);
-//       })
-//       .catch((err) => {
-//         console.log(err); // выводим ошибку в консоль
-//       }); 
-//   } 
+const getInitialCards = () => {
+  return fetch(`${config.baseUrl}/cards`, {
+    headers: config.headers
+  })
+    .then(handleRes)
+} 
 
-  const addLike = (cardID, likeCounter, likeButton) => {
-    return fetch(`${config.baseUrl}/cards/likes/${cardID}`, {
-      method: 'PUT',
-      headers: config.headers,  
-    })
-    .then(res => {
-      if (res.ok) {
-        return res.json();
-      }
-      return Promise.reject(`Ошибка: ${res.status}`);
-    })
-    .then((data) => {
-      likeCounter.textContent = data.likes.length;
-      likeButton.classList.add('card__like-button_is-active'); 
-    });
-  }
+const getUserInfo = () => {
+  return fetch(`${config.baseUrl}/users/me`, {
+    headers: config.headers
+  })
+  .then(handleRes)
+}
 
-  const deleteLike = (cardID, likeCounter, likeButton) => {
-    return fetch(`${config.baseUrl}/cards/likes/${cardID}`, {
-        method: 'DELETE',
-        headers: config.headers,  
-      })
-      .then(res => {
-        if (res.ok) {
-          return res.json();
-        }
-        return Promise.reject(`Ошибка: ${res.status}`);
-      })
-      .then((data) => {
-        likeCounter.textContent = data.likes.length;
-        likeButton.classList.remove('card__like-button_is-active'); 
-      });
-  }
+const postAddNewCard = (cardName, linksrc) => {
+  return fetch(`${config.baseUrl}/cards`, {
+    method: 'POST',
+    headers: config.headers,
+    body: JSON.stringify({
+      name: cardName.value,
+      link: linksrc.value })
+  }) 
+  .then(handleRes);
+}
 
-  const deleteCard = (cardID, cardElement) => {
-    return fetch(`${config.baseUrl}/cards/${cardID}`, {
+const addLike = (cardID, likeCounter, likeButton) => {
+  return fetch(`${config.baseUrl}/cards/likes/${cardID}`, {
+    method: 'PUT',
+    headers: config.headers,  
+  })
+  .then(handleRes)
+}
+
+const deleteLike = (cardID, likeCounter, likeButton) => {
+  return fetch(`${config.baseUrl}/cards/likes/${cardID}`, {
       method: 'DELETE',
       headers: config.headers,  
-      })
-      .then(res => {
-        if (res.ok) {
-          return res.json();
-        }
-        return Promise.reject(`Ошибка: ${res.status}`);
-      })
-      .then((data) => {
-        cardElement.remove();
-      }); 
-  }
+    })
+    .then(handleRes)
+}
 
-  const editAvatar = (link, profileImage) => {
-    return fetch(`${config.baseUrl}/users/me/avatar`, {
-      method: 'PATCH',
-      headers: config.headers,
-      body: JSON.stringify({
-        avatar: link})
+const deleteCard = (cardID, cardElement) => {
+  return fetch(`${config.baseUrl}/cards/${cardID}`, {
+    method: 'DELETE',
+    headers: config.headers,  
     })
-    .then(res => {
-      if (res.ok) {
-        return res.json();
-      }
-      return Promise.reject(`Ошибка: ${res.status}`);
+    .then(handleRes)
+}
+
+const editProfileInfo = (config, name, about) => {  
+  return fetch(`${config.baseUrl}/users/me`, {
+    method: 'PATCH',
+    headers: config.headers,
+    body: JSON.stringify({
+      name: name,
+      about: about})
     })
-    .then((result) => {
-      console.log(result);
-      console.log(profileImage);
-      profileImage.src = result.avatar;
-    })
-  }
+    .then(handleRes);
+}
+
+const editAvatar = (link, profileImage) => {
+  return fetch(`${config.baseUrl}/users/me/avatar`, {
+    method: 'PATCH',
+    headers: config.headers,
+    body: JSON.stringify({
+      avatar: link})
+  })
+  .then(handleRes)
+}
