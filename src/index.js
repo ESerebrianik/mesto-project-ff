@@ -3,7 +3,7 @@ import {createCard, deleteCard} from './components/card.js';
 import {closePopup, openPopup, handleEscape} from './components/modal.js';
 import './pages/index.css';
 import {enableValidation, clearValidation } from './components/validation.js';
-import {addLike, deleteLike} from './components/api.js';
+import {addLike, deleteLike, editAvatar} from './components/api.js';
 
 const cardsContainer = document.querySelector('.places__list');
 const profileEditButton = document.querySelector('.profile__edit-button');
@@ -15,6 +15,7 @@ const profileTitle = document.querySelector('.profile__title');
 const profileDescription = document.querySelector('.profile__description');
 const formProfileElement = document.querySelector('.popup__form');
 const profileAddButton = document.querySelector('.profile__add-button');
+const avatar = document.querySelector('.avatar');
 const popupTypeNewCard = document.querySelector('.popup_type_new-card');
 const popupTypeEdit = document.querySelector('.popup_type_edit');
 const formNewCard = document.forms['new-place']; 
@@ -23,6 +24,9 @@ const linksrc = document.querySelector('.popup__input_type_url');
 const popupTypeImage = document.querySelector('.popup_type_image');
 const popupImage = document.querySelector('.popup__image');
 const popupCaption = document.querySelector('.popup__caption');
+const popupTypeEditAvatar = document.querySelector('.popup_type_edit_avatar');
+const popupTypeEditAvatarInput = popupTypeEditAvatar.querySelector('.popup__input_type_avatar-link');
+const buttonSubmitEditAvatar = popupTypeEditAvatar.querySelector('.button');
 const configValidation = {
   formSelector: '.popup__form',
   inputSelector: '.popup__input',
@@ -37,9 +41,11 @@ let cardID = 0;
 
 function handleProfileFormSubmit(evt) {
     evt.preventDefault();
+    changeButtonText(buttonSubmitEditAvatar, "Сохранение...");
     profileTitle.textContent = popupInputName.value;
     profileDescription.textContent = popupInputDescription.value;
     editProfileInfo(config, popupInputName.value, popupInputDescription.value);
+    changeButtonText(buttonSubmitEditAvatar, "Сохраненить");
     closePopup(popupTypeEdit);
 }
 
@@ -50,7 +56,6 @@ function addNewCard(evt) {
         link: linksrc.value
     }
     return postAddNewCard();
-    // return createCard({data, deleteCard, likeCard, openImage});   
 }
 
 function openImage(cardLink, cardName) {
@@ -62,7 +67,6 @@ function openImage(cardLink, cardName) {
 
 profileEditButton.addEventListener('click', function (evt) {
     openPopup(popupTypeEdit);
-    // editProfileInfo();
     popupInputName.value = profileTitle.textContent;
     popupInputDescription.value = profileDescription.textContent;
   })
@@ -71,6 +75,18 @@ formProfileElement.addEventListener('submit', handleProfileFormSubmit);
 
 profileAddButton.addEventListener('click', function(evt) {
     openPopup(popupTypeNewCard);
+})
+
+popupTypeEditAvatar.addEventListener('submit', function(evt) {
+  evt.preventDefault();
+  changeButtonText(buttonSubmitEditAvatar, "Сохранение...");
+  editAvatar(popupTypeEditAvatarInput.value, profileImage);
+  closePopup(popupTypeEditAvatar);
+  changeButtonText(buttonSubmitEditAvatar, "Сохраненить");
+});
+
+avatar.addEventListener('click', function(evt){
+    openPopup(popupTypeEditAvatar);
 })
 
 popups.forEach(function(popup) {
@@ -83,8 +99,10 @@ popups.forEach(function(popup) {
 
 formNewCard.addEventListener('submit', function(evt) {
     const cardElement = addNewCard(evt);
+    changeButtonText(buttonSubmitEditAvatar, "Сохранение...");
     formNewCard.reset();
     closePopup(popupTypeNewCard);
+    changeButtonText(buttonSubmitEditAvatar, "Сохраненить");
 });
 
 
@@ -98,13 +116,6 @@ const config = {
     'Content-Type': 'application/json'
   }
 };
-
-const data = fetch('https://nomoreparties.co/v1/wff-cohort-18/users/me',
-  {headers: config.headers})
-  .then(res => res.json())
-  .then((result) => {
-    console.log(result);
-  }); 
   
 const getInitialCards = () => {
   return fetch(`${config.baseUrl}/cards`, {
@@ -148,7 +159,7 @@ Promise.all([getInitialCards(), getUserInfo()])
   .then(([cards, userdata]) => {
     profileTitle.textContent = userdata.name;
     profileDescription.textContent = userdata.about;
-    profileImage.style.backgroundImage = `url(${userdata.avatar})`;
+    profileImage.src = userdata.avatar;
     userID = userdata._id;
     
     cards.forEach(function(data){
@@ -159,10 +170,6 @@ Promise.all([getInitialCards(), getUserInfo()])
   .catch((err) => {
     console.log(`Ошибка. Запрос не выполнен: ${err}`);
   });
-
-
-
-
 
 const postAddNewCard = () => {
   return fetch(`${config.baseUrl}/cards`, {
@@ -228,6 +235,10 @@ const confirmLikeCard = (evt, cardId, likeCounter) => {
       });
   }
 };
+
+function changeButtonText(button, text) {
+  button.textContent = text;
+}
 
  
 

@@ -19,7 +19,7 @@ function createCard({data, deleteCard, addLike, openImage, userID, deleteLike}) 
     }
 
 
-    console.log('id', data.owner._id, userID);
+   
     if (data.owner._id === userID) {
         deleteButton.addEventListener("click", () => {
           deleteCard(cardID, cardElement);

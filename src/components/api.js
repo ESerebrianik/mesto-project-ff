@@ -1,4 +1,4 @@
-export {addLike, deleteLike, deleteCard}
+export {addLike, deleteLike, deleteCard, editAvatar}
 
 const config = {
     baseUrl: 'https://nomoreparties.co/v1/wff-cohort-18',
@@ -73,4 +73,24 @@ const config = {
       .then((data) => {
         cardElement.remove();
       }); 
+  }
+
+  const editAvatar = (link, profileImage) => {
+    return fetch(`${config.baseUrl}/users/me/avatar`, {
+      method: 'PATCH',
+      headers: config.headers,
+      body: JSON.stringify({
+        avatar: link})
+    })
+    .then(res => {
+      if (res.ok) {
+        return res.json();
+      }
+      return Promise.reject(`Ошибка: ${res.status}`);
+    })
+    .then((result) => {
+      console.log(result);
+      console.log(profileImage);
+      profileImage.src = result.avatar;
+    })
   }
