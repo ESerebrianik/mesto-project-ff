@@ -1,7 +1,7 @@
 import {createCard} from './components/card.js';
 import {closePopup, openPopup, handleEscape} from './components/modal.js';
 import './pages/index.css';
-import {enableValidation, clearValidation } from './components/validation.js';
+import {enableValidation, clearValidation} from './components/validation.js';
 import {config, getInitialCards, getUserInfo, postAddNewCard, addLike, deleteLike, deleteCard, editProfileInfo, editAvatar} from './components/api.js';
 
 const cardsContainer = document.querySelector('.places__list');
@@ -26,6 +26,8 @@ const popupCaption = document.querySelector('.popup__caption');
 const popupTypeEditAvatar = document.querySelector('.popup_type_edit_avatar');
 const popupTypeEditAvatarInput = popupTypeEditAvatar.querySelector('.popup__input_type_avatar-link');
 const buttonSubmitEditAvatar = popupTypeEditAvatar.querySelector('.button');
+const buttonSubmitEditProfile = popupTypeEdit.querySelector('.button');
+const buttonSubmitAddNewCard = popupTypeNewCard.querySelector('.button');
 const configValidation = {
   formSelector: '.popup__form',
   inputSelector: '.popup__input',
@@ -43,20 +45,20 @@ function changeButtonText(button, text) {
 
 function handleProfileFormSubmit(evt) {
     evt.preventDefault();
-    changeButtonText(buttonSubmitEditAvatar, "Сохранение...");
-    profileTitle.textContent = popupInputName.value;
-    profileDescription.textContent = popupInputDescription.value;
+    changeButtonText(buttonSubmitEditProfile, "Сохранение...");
     editProfileInfo(config, popupInputName.value, popupInputDescription.value)
     .then((data) => {
       console.log(data);
       profileTitle.textContent = data.name;
       profileDescription.textContent = data.about;
+      closePopup(popupTypeEdit);
     })
     .catch((err) => {
       console.log('ошибка редактирования профиля:', err);
-    });
+    })
+    .finally(() => {
     changeButtonText(buttonSubmitEditAvatar, "Сохраненить");
-    closePopup(popupTypeEdit);
+    });
 }
 
 function addNewCard(evt) {
@@ -65,16 +67,23 @@ function addNewCard(evt) {
         name: cardName.value,
         link: linksrc.value
     }
+    changeButtonText(buttonSubmitAddNewCard, "Сохранение...")
     postAddNewCard(cardName, linksrc)
     .then((data) => {
       console.log(data);
       let cardID = data._id;
       const card = createCard({data, deleteCard, addLike, openImage, userID, deleteLike, cardName, linksrc});
-      cardsContainer.prepend(card);   
+      cardsContainer.prepend(card);  
+      formNewCard.reset();
+      clearValidation(formNewCard, configValidation.inputSelector);
+      closePopup(formNewCard);
     })
     .catch((err) => {
       console.log('ошибка добавления карточки:', err);
     })
+    .finally(() => {
+      changeButtonText(buttonSubmitAddNewCard, "Сохраненить");
+    });
 }
 
 function openImage(cardLink, cardName) {
@@ -85,9 +94,10 @@ function openImage(cardLink, cardName) {
 }
 
 profileEditButton.addEventListener('click', function (evt) {
-    openPopup(popupTypeEdit);
     popupInputName.value = profileTitle.textContent;
     popupInputDescription.value = profileDescription.textContent;
+    openPopup(popupTypeEdit);
+    clearValidation(formProfileElement, configValidation);
   })
 
 formProfileElement.addEventListener('submit', handleProfileFormSubmit);
@@ -102,12 +112,14 @@ popupTypeEditAvatar.addEventListener('submit', function(evt) {
   editAvatar(popupTypeEditAvatarInput.value, profileImage)
     .then((result) => {
       profileImage.src = result.avatar;
+      closePopup(popupTypeEditAvatar);
     })
     .catch((err) => {
       console.log('ошибка редактирования фото профиля:', err);
-    });
-  closePopup(popupTypeEditAvatar);
-  changeButtonText(buttonSubmitEditAvatar, "Сохраненить");
+    })
+    .finally(() => {
+      changeButtonText(buttonSubmitEditAvatar, "Сохраненить");
+    })   
 });
 
 avatar.addEventListener('click', function(evt){
@@ -122,13 +134,13 @@ popups.forEach(function(popup) {
     })
 });
 
-formNewCard.addEventListener('submit', function(evt) {
-    const cardElement = addNewCard(evt);
-    changeButtonText(buttonSubmitEditAvatar, "Сохранение...");
-    formNewCard.reset();
-    closePopup(popupTypeNewCard);
-    changeButtonText(buttonSubmitEditAvatar, "Сохраненить");
-});
+formNewCard.addEventListener('submit', addNewCard); 
+    // addNewCard(evt);
+    // changeButtonText(buttonSubmitEditAvatar, "Сохранение...");
+    // // formNewCard.reset();
+    // closePopup(popupTypeNewCard);
+    // changeButtonText(buttonSubmitEditAvatar, "Сохраненить");
+
 
 enableValidation(configValidation); 
 
@@ -148,7 +160,7 @@ Promise.all([getInitialCards(), getUserInfo()])
     console.log(`Ошибка. Запрос не выполнен: ${err}`);
   });
 
-
+export {configValidation};
 
  
 

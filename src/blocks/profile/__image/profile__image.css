@@ -1,4 +1,4 @@
- .profile__image {
+.profile__image {
   width: 120px;
   height: 120px;
   -webkit-border-radius: 50%;
@@ -19,7 +19,7 @@
 }
 
 .overlay {
-  content: '';
+  content: "";
   background: black;
   opacity: 10%;
   z-index: 1;
@@ -31,12 +31,11 @@
 }
 
 .overlay:hover {
-  background: transparent url('/src/images/Vector.svg') center no-repeat;
+  background: transparent url("/src/images/Vector.svg") center no-repeat;
   background-color: black;
   opacity: 80%;
   cursor: pointer;
 }
-
 
 @media screen and (max-width: 740px) {
   .profile__image {
@@ -49,5 +48,3 @@
     margin-right: 0;
   }
 }
-
-

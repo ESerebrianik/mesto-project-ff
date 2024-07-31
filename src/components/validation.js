@@ -1,18 +1,27 @@
 export { enableValidation, clearValidation };
+import { configValidation } from "../index.js";
+// const configValidation = {
+//     formSelector: '.popup__form',
+//     inputSelector: '.popup__input',
+//     submitButtonSelector: '.popup__button',
+//     inactiveButtonClass: 'popup__button_disabled',
+//     inputErrorClass: 'popup__input_type_error',
+//     errorClass: 'popup__error_visible'
+//    }
 
 // Функция, которая добавляет класс с ошибкой
 const showInputError = (formElement, popupInput, errorMessage) => {
   const errorElement = formElement.querySelector(`.${popupInput.id}-error`);
-  popupInput.classList.add('popup__input_type_error');
+  popupInput.classList.add(configValidation.inputErrorClass);
   errorElement.textContent = errorMessage;
-  errorElement.classList.add('popup__error_visible');
+  errorElement.classList.add(configValidation.errorClass);
 };
 
 // Функция, которая удаляет класс с ошибкой
 const hideInputError = (formElement, popupInput) => {
   const errorElement = formElement.querySelector(`.${popupInput.id}-error`);
-  popupInput.classList.remove('popup__input_type_error');
-  errorElement.classList.remove('popup__error_visible');
+  popupInput.classList.remove(configValidation.inputErrorClass);
+  errorElement.classList.remove(configValidation.errorClass);
   errorElement.textContent = '';
 };
 
@@ -39,16 +48,15 @@ const hasInvalidInput = (inputList) => {
  const toggleButtonState = (inputList, buttonElement) => {
   if(hasInvalidInput(inputList)){
     buttonElement.disabled = true;
-    buttonElement.classList.add('popup__button_disabled');
+    buttonElement.classList.add(configValidation.inactiveButtonClass);
   } else {
     buttonElement.disabled = false;
-    buttonElement.classList.remove('popup__button_disabled');
+    buttonElement.classList.remove(configValidation.inactiveButtonClass);
   }
 }
 
 const setEventListeners = (formElement, configValidation) => {
   const inputList = Array.from(formElement.querySelectorAll(configValidation.inputSelector));
-  console.log(formElement);  
   const buttonElement = formElement.querySelector(configValidation.submitButtonSelector);
   toggleButtonState(inputList, buttonElement);
   inputList.forEach((popupInput) => {
@@ -66,9 +74,12 @@ const enableValidation = (configValidation) => {
   });
 };
 
-const clearValidation = () => {
+const clearValidation = (formElement, configValidation) => {
+  const inputList = Array.from(formElement.querySelectorAll(configValidation.inputSelector));
+  const buttonElement = formElement.querySelector(configValidation.submitButtonSelector);
   inputList.textContent = '';
-  buttonElement.classList.add('popup__button_disabled');
+  buttonElement.classList.add(configValidation.inactiveButtonClass);
+  buttonElement.disabled = true;
   inputList.forEach((inputElement) => {
     hideInputError(
       formElement,
