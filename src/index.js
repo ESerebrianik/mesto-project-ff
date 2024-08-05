@@ -57,7 +57,7 @@ function handleProfileFormSubmit(evt) {
       console.log('ошибка редактирования профиля:', err);
     })
     .finally(() => {
-    changeButtonText(buttonSubmitEditAvatar, "Сохраненить");
+    changeButtonText(buttonSubmitEditProfile, "Сохранить");
     });
 }
 
@@ -75,14 +75,14 @@ function addNewCard(evt) {
       const card = createCard({data, deleteCard, addLike, openImage, userID, deleteLike, cardName, linksrc});
       cardsContainer.prepend(card);  
       formNewCard.reset();
-      clearValidation(formNewCard, configValidation.inputSelector);
-      closePopup(formNewCard);
+      clearValidation(formNewCard, configValidation);
+      closePopup(popupTypeNewCard);
     })
     .catch((err) => {
       console.log('ошибка добавления карточки:', err);
     })
     .finally(() => {
-      changeButtonText(buttonSubmitAddNewCard, "Сохраненить");
+      changeButtonText(buttonSubmitAddNewCard, "Сохранить");
     });
 }
 
@@ -118,12 +118,14 @@ popupTypeEditAvatar.addEventListener('submit', function(evt) {
       console.log('ошибка редактирования фото профиля:', err);
     })
     .finally(() => {
-      changeButtonText(buttonSubmitEditAvatar, "Сохраненить");
+      changeButtonText(buttonSubmitEditAvatar, "Сохранить");
     })   
 });
 
 avatar.addEventListener('click', function(evt){
+  popupTypeEditAvatarInput.value = "";
     openPopup(popupTypeEditAvatar);
+    clearValidation(popupTypeEditAvatar, configValidation)
 })
 
 popups.forEach(function(popup) {
@@ -135,12 +137,6 @@ popups.forEach(function(popup) {
 });
 
 formNewCard.addEventListener('submit', addNewCard); 
-    // addNewCard(evt);
-    // changeButtonText(buttonSubmitEditAvatar, "Сохранение...");
-    // // formNewCard.reset();
-    // closePopup(popupTypeNewCard);
-    // changeButtonText(buttonSubmitEditAvatar, "Сохраненить");
-
 
 enableValidation(configValidation); 
 

@@ -1,16 +1,7 @@
 export { enableValidation, clearValidation };
-import { configValidation } from "../index.js";
-// const configValidation = {
-//     formSelector: '.popup__form',
-//     inputSelector: '.popup__input',
-//     submitButtonSelector: '.popup__button',
-//     inactiveButtonClass: 'popup__button_disabled',
-//     inputErrorClass: 'popup__input_type_error',
-//     errorClass: 'popup__error_visible'
-//    }
 
 // Функция, которая добавляет класс с ошибкой
-const showInputError = (formElement, popupInput, errorMessage) => {
+const showInputError = (formElement, popupInput, errorMessage, configValidation) => {
   const errorElement = formElement.querySelector(`.${popupInput.id}-error`);
   popupInput.classList.add(configValidation.inputErrorClass);
   errorElement.textContent = errorMessage;
@@ -18,7 +9,7 @@ const showInputError = (formElement, popupInput, errorMessage) => {
 };
 
 // Функция, которая удаляет класс с ошибкой
-const hideInputError = (formElement, popupInput) => {
+const hideInputError = (formElement, popupInput, configValidation) => {
   const errorElement = formElement.querySelector(`.${popupInput.id}-error`);
   popupInput.classList.remove(configValidation.inputErrorClass);
   errorElement.classList.remove(configValidation.errorClass);
@@ -26,16 +17,16 @@ const hideInputError = (formElement, popupInput) => {
 };
 
 // Функция, которая проверяет валидность поля
-const isValid = (formElement, popupInput) => {
+const isValid = (formElement, popupInput, configValidation) => {
   if (popupInput.validity.patternMismatch) {
     popupInput.setCustomValidity(popupInput.dataset.errorMessage);
 } else {
     popupInput.setCustomValidity("");
 }
   if (!popupInput.validity.valid) {
-    showInputError(formElement, popupInput, popupInput.validationMessage);
+    showInputError(formElement, popupInput, popupInput.validationMessage, configValidation);
   } else {
-    hideInputError(formElement, popupInput);
+    hideInputError(formElement, popupInput, configValidation);
   }
 };
 
@@ -45,7 +36,7 @@ const hasInvalidInput = (inputList) => {
    })
  }; 
 
- const toggleButtonState = (inputList, buttonElement) => {
+ const toggleButtonState = (inputList, buttonElement, configValidation) => {
   if(hasInvalidInput(inputList)){
     buttonElement.disabled = true;
     buttonElement.classList.add(configValidation.inactiveButtonClass);
@@ -58,11 +49,11 @@ const hasInvalidInput = (inputList) => {
 const setEventListeners = (formElement, configValidation) => {
   const inputList = Array.from(formElement.querySelectorAll(configValidation.inputSelector));
   const buttonElement = formElement.querySelector(configValidation.submitButtonSelector);
-  toggleButtonState(inputList, buttonElement);
+  toggleButtonState(inputList, buttonElement, configValidation);
   inputList.forEach((popupInput) => {
     popupInput.addEventListener('input', () => {
-      isValid(formElement, popupInput);
-      toggleButtonState(inputList, buttonElement);
+      isValid(formElement, popupInput, configValidation);
+      toggleButtonState(inputList, buttonElement, configValidation);
     });
   });
 }; 
